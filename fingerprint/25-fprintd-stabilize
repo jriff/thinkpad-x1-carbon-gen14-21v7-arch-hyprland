@@ -10,12 +10,24 @@ case "$1/$2" in
     # Restart fprintd, thus it connects to the new device object.
     /usr/bin/systemctl restart fprintd.service
 
-    # Wait up to 3 s for fprintd to show a device with enrolled fingers.
-    for i in 1 2 3 4 5 6 7 8 9 10; do
-      /usr/bin/fprintd-list jriff >/dev/null 2>&1 && break
-      /bin/sleep 0.3
-    done
+    # Which user to ask. fprintd-list needs a name, and this runs as root at
+    # resume with no session, thus there is no $USER and no $SUDO_USER to read.
+    # fprintd keeps each user's prints in a directory named for that user.
+    # CAUTION: A hardcoded name here worked on one machine and burned the whole
+    # retry budget on every other one, while still logging "ready".
+    fpuser=$(/usr/bin/ls /var/lib/fprint 2>/dev/null | /usr/bin/head -n 1)
 
-    /usr/bin/logger -t fprintd-stabilize "post-resume: reset ${id:-none}, fprintd ready after attempt $i"
+    # Wait up to 3 s for fprintd to show a device with enrolled fingers.
+    # No enrolled user means nothing to wait for.
+    i=0
+    if [ -n "$fpuser" ]; then
+      for i in 1 2 3 4 5 6 7 8 9 10; do
+        /usr/bin/fprintd-list "$fpuser" >/dev/null 2>&1 && break
+        /bin/sleep 0.3
+      done
+    fi
+
+    /usr/bin/logger -t fprintd-stabilize \
+      "post-resume: reset ${id:-none}, user ${fpuser:-none}, fprintd ready after attempt $i"
     ;;
 esac
