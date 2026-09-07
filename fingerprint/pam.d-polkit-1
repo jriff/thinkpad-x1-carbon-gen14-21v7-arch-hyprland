@@ -1,0 +1,16 @@
+#%PAM-1.0
+#
+# Fingerprint auth for polkit prompts (pkexec and GUI authorisation dialogs).
+# This file overrides /usr/lib/pam.d/polkit-1; PAM prefers /etc/pam.d. No .pacnew.
+# The four include lines are the vendor file's. Only the two auth lines are ours.
+# include, not a copy of its expansion: system-auth carries faillock, homed and pam_env.
+# The gate comes first: lid closed, riffos-hw-laptop-closed exits 0 and success=1
+# skips pam_fprintd. Lid open, it exits non-zero and default=ignore continues.
+# `sufficient`: a matched finger ends the stack. A failed or absent finger falls
+# through to system-auth. With no enrolled prints pam_fprintd returns UNAVAIL.
+auth      [success=1 default=ignore] pam_exec.so quiet quiet_log /usr/local/bin/riffos-hw-laptop-closed
+auth      sufficient  pam_fprintd.so
+auth      include     system-auth
+account   include     system-auth
+password  include     system-auth
+session   include     system-auth

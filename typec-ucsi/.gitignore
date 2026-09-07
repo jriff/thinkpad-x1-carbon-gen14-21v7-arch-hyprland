@@ -1,0 +1,6 @@
+# makepkg output. setup.sh builds in a temp directory, but a bare `makepkg`
+# writes these next to the PKGBUILD.
+src/
+pkg/
+*.pkg.tar.zst
+*.log

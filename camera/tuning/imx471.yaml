@@ -1,0 +1,22 @@
+%YAML 1.1
+# SPDX-License-Identifier: CC0-1.0
+# Sony IMX471 (ThinkPad X1 Carbon Gen 14, TBE20A0), calibrated against C920
+# captures for libcamera 0.7.2. R=1.06, B=1.14.
+# gamma, contrast and saturation are in /etc/v4l2-relayd.d/ipu7.conf.
+# The BlackLevel block must be present: it instantiates the algorithm. Empty
+# means automatic estimation. 0.7.2 ignores the legacy r/gr/gb/b keys.
+# Diagonal-only CCM: G is never lowered, thus clipped highlights stay white.
+---
+version: 1
+algorithms:
+  - BlackLevel:
+  - Awb:
+  - Ccm:
+      ccms:
+        - ct: 6500
+          ccm: [ 1.06, 0.00, 0.00,
+                 0.00, 1.00, 0.00,
+                 0.00, 0.00, 1.14 ]
+  - Adjust:
+  - Agc:
+...

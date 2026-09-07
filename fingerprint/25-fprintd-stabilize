@@ -1,0 +1,21 @@
+#!/bin/sh
+# Reset the fingerprint reader after resume, thus the lock screen can use it
+# at once. The USB id differs per machine (Gen 10: 06cb:00fc, Gen 14:
+# 06cb:019f); it is read at runtime.
+case "$1/$2" in
+  post/*)
+    id=$(/usr/bin/lsusb | /usr/bin/awk '/Synaptics/ { print $6; exit }')
+    [ -n "$id" ] && /usr/bin/usbreset "$id" >/dev/null 2>&1
+
+    # Restart fprintd, thus it connects to the new device object.
+    /usr/bin/systemctl restart fprintd.service
+
+    # Wait up to 3 s for fprintd to show a device with enrolled fingers.
+    for i in 1 2 3 4 5 6 7 8 9 10; do
+      /usr/bin/fprintd-list jriff >/dev/null 2>&1 && break
+      /bin/sleep 0.3
+    done
+
+    /usr/bin/logger -t fprintd-stabilize "post-resume: reset ${id:-none}, fprintd ready after attempt $i"
+    ;;
+esac
