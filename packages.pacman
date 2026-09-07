@@ -1,0 +1,7 @@
+# Repository packages this model needs. setup.sh merges this with base.packages.
+linux-headers       # imx471-dkms-git declares only dkms; DKMS cannot compile without headers
+dkms
+libcamera           # layer 2: the camera stack the relay reads from
+libcamera-tools     # cam(1), for the verification steps in camera/README
+pipewire-libcamera
+gst-plugin-libcamera

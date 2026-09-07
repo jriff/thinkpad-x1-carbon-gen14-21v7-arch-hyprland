@@ -36,7 +36,7 @@ if grep -q 'PPM init succeeded after\|ret == -ENODEV || ret == -EINVAL' ucsi.c; 
     echo "riffos-ucsi-retry: kernel $KBASE ALREADY HAS THE RETRY FIX UPSTREAM." >&2
     echo "riffos-ucsi-retry: RETIRE THIS PACKAGE — it is no longer needed:" >&2
     echo "riffos-ucsi-retry:   sudo pacman -R riffos-ucsi-retry-dkms" >&2
-    echo "riffos-ucsi-retry:   then delete hosts/jrx1/ucsi/, its setup.sh block," >&2
+    echo "riffos-ucsi-retry:   then delete hardware/x1c-gen14/typec-ucsi/, its setup.sh block," >&2
     echo "riffos-ucsi-retry:   and WORKAROUNDS.md #9" >&2
     echo "riffos-ucsi-retry: the stock driver now carries the fix, so nothing is lost." >&2
     exit 1

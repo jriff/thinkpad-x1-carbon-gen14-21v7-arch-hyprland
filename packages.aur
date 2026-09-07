@@ -1,0 +1,4 @@
+# AUR packages this model needs. setup.sh merges this with the shared
+# aur.packages; a stranger installs them with the flags in README.md.
+imx471-dkms-git     # imx471 sensor module + tuning yaml. Not mainline. Re-check on new kernels.
+v4l2-relayd         # feeds the loopback node from libcamera. Pulls v4l2loopback-dkms.
