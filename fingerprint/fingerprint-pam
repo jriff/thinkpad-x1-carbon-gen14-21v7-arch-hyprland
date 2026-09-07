@@ -1,9 +1,9 @@
 #!/bin/bash
 # Add fingerprint auth to /etc/pam.d/sudo. Idempotent; setup.sh runs it on each run.
-# Only sudo: polkit uses system/etc/pam.d/polkit-1, hyprlock talks to fprintd
+# Only sudo: polkit uses hardware/x1c-gen14/fingerprint/pam.d-polkit-1, hyprlock talks to fprintd
 # directly. /etc/pam.d/sudo is package-owned with no drop-in, thus this script
 # edits it, and upgrades leave a .pacnew. It inserts, in this order:
-#   auth [success=1 default=ignore] pam_exec.so ... riffos-hw-laptop-closed
+#   auth [success=1 default=ignore] pam_exec.so ... hw-laptop-closed
 #   auth sufficient                 pam_fprintd.so
 # Lid closed: the gate exits 0 and success=1 skips pam_fprintd. Lid open: a failed
 # or absent print falls through to the password. From Omarchy (MIT); quiet_log added.
@@ -12,25 +12,25 @@ set -uo pipefail
 
 PAM_FILE=${1:-/etc/pam.d/sudo}
 
-GATE='auth      [success=1 default=ignore] pam_exec.so quiet quiet_log /usr/local/bin/riffos-hw-laptop-closed'
+GATE='auth      [success=1 default=ignore] pam_exec.so quiet quiet_log /usr/local/bin/hw-laptop-closed'
 FPRINTD='auth      sufficient  pam_fprintd.so'
 
 # Root first. install(1) copies content before it sets the owner, thus a
 # non-root run failed after the rewrite.
 if [ "$(id -u)" -ne 0 ]; then
-    echo "riffos-fingerprint-pam: must run as root (it edits $PAM_FILE)" >&2
+    echo "fingerprint-pam: must run as root (it edits $PAM_FILE)" >&2
     exit 1
 fi
 
 if [ ! -f "$PAM_FILE" ]; then
-    echo "riffos-fingerprint-pam: $PAM_FILE does not exist" >&2
+    echo "fingerprint-pam: $PAM_FILE does not exist" >&2
     exit 1
 fi
 
-if [ ! -x /usr/local/bin/riffos-hw-laptop-closed ]; then
+if [ ! -x /usr/local/bin/hw-laptop-closed ]; then
     # Refuse to write a gate that points at nothing. A missing pam_exec target
     # is not fatal to auth, but the machine looks configured and is not.
-    echo "riffos-fingerprint-pam: /usr/local/bin/riffos-hw-laptop-closed missing or not executable" >&2
+    echo "fingerprint-pam: /usr/local/bin/hw-laptop-closed missing or not executable" >&2
     exit 1
 fi
 
@@ -45,27 +45,27 @@ trap 'rm -f "$tmp"' EXIT
 # Remove each existing copy of both lines, then insert one pair before the
 # first auth module.
 awk -v gate="$GATE" -v fprintd="$FPRINTD" '
-    /riffos-hw-laptop-closed/ { next }
+    /hw-laptop-closed/ { next }
     /pam_fprintd\.so/        { next }
     !inserted && /^[[:space:]]*auth[[:space:]]/ { print gate; print fprintd; inserted = 1 }
     { print }
     END { exit inserted ? 0 : 1 }
 ' "$PAM_FILE" > "$tmp" || {
-    echo "riffos-fingerprint-pam: $PAM_FILE has no auth line to insert before" >&2
+    echo "fingerprint-pam: $PAM_FILE has no auth line to insert before" >&2
     exit 1
 }
 
 # Check before install. A wrong PAM file is a machine that cannot sudo, and the
 # repair is a rescue USB.
-if ! grep -q 'pam_fprintd\.so' "$tmp" || ! grep -q 'riffos-hw-laptop-closed' "$tmp"; then
-    echo "riffos-fingerprint-pam: rewrite of $PAM_FILE did not contain both lines; not installing" >&2
+if ! grep -q 'pam_fprintd\.so' "$tmp" || ! grep -q 'hw-laptop-closed' "$tmp"; then
+    echo "fingerprint-pam: rewrite of $PAM_FILE did not contain both lines; not installing" >&2
     exit 1
 fi
 
 # Already correct: the rendering is identical to the live file. Byte-exact on
 # purpose; a whitespace edit is drift.
 if cmp -s "$tmp" "$PAM_FILE"; then
-    echo "riffos-fingerprint-pam: $PAM_FILE already wired"
+    echo "fingerprint-pam: $PAM_FILE already wired"
     exit 0
 fi
 
@@ -75,4 +75,4 @@ fi
 chmod 644 "$tmp" || exit 1
 mv -f "$tmp" "$PAM_FILE" || exit 1
 trap - EXIT          # the temp is the target now; do not delete it
-echo "riffos-fingerprint-pam: wired fingerprint auth into $PAM_FILE"
+echo "fingerprint-pam: wired fingerprint auth into $PAM_FILE"

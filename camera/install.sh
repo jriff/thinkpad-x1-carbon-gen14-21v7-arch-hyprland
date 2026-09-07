@@ -1,27 +1,23 @@
-# Install the X1 Carbon Gen 14 camera stack. Layers, per ocewers' README:
+# Configure the X1 Carbon Gen 14 camera. Layers, per ocewers' README:
 # 1 kernel modules, 2 libcamera/PipeWire, 3 v4l2-relayd, 4 tuning.
 # Layers 1 and 4 come from AUR imx471-dkms-git; DKMS rebuilds on kernel updates.
 # Layers 2 and 3 are /etc overrides. No package-owned file is modified.
-# Revert: jr-revert.sh
+#
+# THIS SCRIPT INSTALLS NO PACKAGES. They are listed in ../packages.pacman and
+# ../packages.aur, thus there is one list and not two. ../install.sh runs this
+# after the packages are in place.
+# Standalone: install those two manifests first. See ../README.md.
+# Revert: revert.sh
 set -euo pipefail
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-[ "$EUID" -ne 0 ] || { echo "Run as regular user (yay refuses root); sudo is used where needed."; exit 1; }
+[ "$EUID" -ne 0 ] || { echo "Run as regular user; sudo is used where needed."; exit 1; }
 
-# Layer 0: prerequisites. linux-headers, because imx471-dkms-git declares only
-# dkms and DKMS cannot compile without headers. v4l2-relayd, because layers 2
-# and 3 configure it. It is AUR and pulls in v4l2loopback-dkms.
-echo "== Layer 0: prerequisites (headers for DKMS, the relayd this script configures) =="
-sudo pacman -S --needed --noconfirm linux-headers dkms
-yay -S --needed --noconfirm --removemake --cleanafter --sudoloop \
-  --answerdiff None --answerclean None --answeredit None v4l2-relayd
-
-# The kernel's IPU7 support is mainline since 7.1. The imx471 sensor driver is
-# not, thus this package is still required. Re-check on new kernels.
-echo "== Layer 1+4: imx471-dkms-git (imx471 sensor module, tuning yaml) =="
-yay -S --needed imx471-dkms-git
-
-echo "== Layer 2: libcamera/PipeWire packages =="
-sudo pacman -S --needed --noconfirm libcamera libcamera-tools pipewire-libcamera gst-plugin-libcamera
+# The packages must be present, or each cp below writes into a directory the
+# relay never reads. Check the one this script configures.
+[ -d /etc/v4l2-relayd.d ] || {
+  echo "v4l2-relayd is not installed. Install ../packages.aur and ../packages.pacman first." >&2
+  exit 1
+}
 
 echo "== Layer 2: unblock ISYS nodes + enable WirePlumber libcamera monitor =="
 sudo touch /etc/udev/rules.d/71-ipu7-hide-isys.rules

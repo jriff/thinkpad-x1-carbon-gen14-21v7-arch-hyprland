@@ -1,6 +1,7 @@
 # riffos-ucsi-retry-dkms: the patched typec_ucsi, as an Arch package.
-#   makepkg -si    build and install by hand
-#   setup.sh       does the same for jrx1
+#   makepkg -si    build and install
+# NOTE: The installer in the directory above does NOT do this. A DKMS package
+# is built, not copied, thus it is a separate step.
 # A package, not a script: `pacman -U --needed` installs it idempotently,
 # 70-dkms-install.hook rebuilds it for each kernel, and 71-dkms-remove.hook
 # restores the stock module. arch=any: nothing compiles here. The package puts

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Exit 0 if the lid is closed, 1 if open or unknown.
-# The PAM gate before pam_fprintd runs this (see riffos-fingerprint-pam). With
+# The PAM gate before pam_fprintd runs this (see fingerprint-pam). With
 # the lid closed the fingerprint reader is unreachable and pam_fprintd would
 # block for 30 seconds.
 # Reads /proc/acpi. loginctl only reports lid events it acted on.

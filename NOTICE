@@ -1,0 +1,51 @@
+# Attribution and licensing
+
+## Licensing, per directory
+
+    typec-ucsi/      GPL-2.0-only. Derived from the Linux kernel. See LICENSE-GPL-2.0.
+    everything else  MIT. See LICENSE-MIT.
+
+## Attribution
+
+### camera/
+The method and the configuration layers come from ocewers' work on this same
+laptop:
+
+    https://github.com/ocewers/x1c14-camera-imx471
+
+His README describes the layers this directory follows: kernel modules,
+libcamera and PipeWire, v4l2-relayd, then tuning. He calls it an interim
+workaround until kernel 7.3.
+
+The imx471 sensor module itself is Ben BJD's, installed from the AUR:
+
+    https://github.com/BenBJD/imx471-dkms          upstream
+    https://aur.archlinux.org/packages/imx471-dkms-git   AUR, maintained by dbav892
+
+The scripts here are mine: they apply those layers without modifying a
+package-owned file, and revert.sh takes them back off.
+
+### typec-ucsi/
+The retry patch is mine, written against drivers/usb/typec/ucsi/ and sent to
+linux-usb. Heikki Krogerus reviewed and acked it.
+
+    v1      https://lore.kernel.org/linux-usb/20260815005724.8741-1-jacob@riff.dk/
+    v2      https://lore.kernel.org/linux-usb/20260824173536.2395830-1-jacob@riff.dk/
+    review  https://lore.kernel.org/linux-usb/apVQVU4fPNC6675K@black.igk.intel.com/
+
+The module build and the DKMS wrapper are mine. The code being patched is the
+kernel's, thus this directory is GPL-2.0.
+
+### touchpad/input-host.lua
+The idea of a custom libinput velocity curve under Hyprland, and the shape of
+it, come from a gist by Daniel Lemky:
+
+    https://gist.github.com/DanielLemky/671889f0eee518e3690cca18a0ad648e
+
+His values are for an M1 MacBook trackpad and were far too slow on this panel.
+The numbers here were measured with evtest and tuned on this hardware. The
+method is his; the values are not.
+
+### fingerprint/, display/, lid/
+Mine, from debugging this machine. The upstream bug each one works around is
+named in the file and in README.md.

@@ -1,4 +1,4 @@
-# Revert jr-install.sh. Each touched path is removed or restored to stock.
+# Revert install.sh. Each touched path is removed or restored to stock.
 # Not removed: v4l2-relayd, v4l2loopback-dkms and linux-headers from layer 0.
 set -euo pipefail
 [ "$EUID" -ne 0 ] || { echo "Run as regular user; sudo is used where needed."; exit 1; }
