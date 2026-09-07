@@ -1,0 +1,31 @@
+# The pointer moves when a finger lifts.
+#
+# The panel reports a position change AFTER the pressure reaches 0, and before
+# it reports the touch as up:
+#
+#   ABS_MT_PRESSURE   12 -> 9 -> 3 -> 0
+#   ABS_MT_POSITION_X          -> 1943     <- at pressure 0
+#   BTN_TOUCH         -> 0
+#
+# libinput still holds the contact at that point, thus it passes that last
+# movement to the pointer. AttrPressureRange=<high>:<low> releases the contact
+# below <low>, thus the move at pressure 0 is discarded.
+#
+# Measured on this panel with evtest, 16 press-and-lift cycles:
+#   lightest touch peak  20      thus high=10 registers every touch
+#   lift decay           12 9 3 0  thus low=6 releases between the 9 and the 3
+# CAUTION: These are raw device units for THIS panel. They mean nothing on
+# another touchpad. Measure again; do not copy.
+# NOTE: libinput ships a quirk for this panel already, in
+# 30-vendor-goodix.quirks: it sets AttrInputProp=+INPUT_PROP_PRESSUREPAD, thus
+# the pad is a haptic pressure pad and a click is a pressure reading. This file
+# adds a pressure range to that entry; it does not replace it.
+# CAUTION: libinput reads the quirks files once, when the compositor makes its
+# libinput context. A change here needs a new session. `udevadm trigger` is not
+# enough; that re-adds the device but keeps the parsed quirks.
+[Goodix GXTP5420 Touchpad 27C6:0F95 pressure range]
+MatchBus=i2c
+MatchVendor=0x27C6
+MatchProduct=0x0F95
+MatchUdevType=touchpad
+AttrPressureRange=10:6

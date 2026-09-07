@@ -1,0 +1,46 @@
+# riffos-ucsi-retry-dkms: the patched typec_ucsi, as an Arch package.
+#   makepkg -si    build and install by hand
+#   setup.sh       does the same for jrx1
+# A package, not a script: `pacman -U --needed` installs it idempotently,
+# 70-dkms-install.hook rebuilds it for each kernel, and 71-dkms-remove.hook
+# restores the stock module. arch=any: nothing compiles here. The package puts
+# source in /usr/src/, and DKMS builds the module on the target machine.
+
+pkgname=riffos-ucsi-retry-dkms
+_module=riffos-ucsi-retry
+pkgver=1.0
+# CAUTION: Bump pkgrel when any file in source=() changes. `pacman -U --needed`
+# skips a matching version, thus /usr/src keeps the old source and setup.sh
+# reports success. sha256sums are SKIP, thus nothing else catches it.
+pkgrel=2
+pkgdesc="typec_ucsi with the PPM init-retry patch (Lenovo X1 Carbon Gen 14 boot race)"
+arch=('any')
+url="https://lore.kernel.org/linux-usb/"
+license=('GPL-2.0-only')
+depends=('dkms')
+
+# Nothing compiles, thus debug and strip would only make an empty -debug package.
+options=('!debug')
+
+# Not in makedepends: curl, patch, kernel headers. DKMS needs them at build
+# time on the target machine. dkms depends on the toolchain.
+
+source=('dkms.conf'
+        'dkms-pre-build.sh'
+        'module.Makefile'
+        'rfc-retry.patch')
+
+# SKIP: local files tracked in git. A checksum of our own tree asserts nothing.
+sha256sums=('SKIP' 'SKIP' 'SKIP' 'SKIP')
+
+package() {
+    # /usr/src/<PACKAGE_NAME>-<PACKAGE_VERSION>/, the path DKMS derives from dkms.conf.
+    local dest="$pkgdir/usr/src/${_module}-${pkgver}"
+
+    install -Dm644 "$srcdir/dkms.conf"          "$dest/dkms.conf"
+    install -Dm644 "$srcdir/module.Makefile"    "$dest/module.Makefile"
+    install -Dm644 "$srcdir/rfc-retry.patch"    "$dest/rfc-retry.patch"
+
+    # Executable: DKMS runs PRE_BUILD. A non-executable file fails with an unclear message.
+    install -Dm755 "$srcdir/dkms-pre-build.sh"  "$dest/dkms-pre-build.sh"
+}

@@ -1,0 +1,24 @@
+# The pointer moves when a finger lifts.
+#
+# This panel reports fuzz 0 on each axis. libinput sizes its hysteresis from
+# the kernel fuzz, thus a fuzz of 0 gives no hysteresis and each small movement
+# reaches the pointer, including the movement the panel reports as a finger
+# lifts and the contact centre shifts.
+#
+# Measured with evtest, 16 press-and-lift cycles: the lift moves the position
+# 1 to 12 units. The axes are 3599 units over 128 mm and 1799 over 81 mm, thus
+# 28 and 22 units per mm. A fuzz of 18 is a dead zone of about 0.65 mm. 12 was not enough.
+#
+# Format is EVDEV_ABS_<hex code>=<min>:<max>:<resolution>:<fuzz>. The empty
+# fields keep the kernel values. 00 and 01 are ABS_X and ABS_Y; 35 and 36 are
+# ABS_MT_POSITION_X and ABS_MT_POSITION_Y.
+#
+# NOTE: This is the fuzz path, not libinput's quirks path. libinput reads the
+# quirks files once when the compositor makes its context, thus a quirks change
+# needs a new session. It reads LIBINPUT_FUZZ_* per device, thus this applies
+# with `udevadm trigger`.
+evdev:name:GXTP5420:00 27C6:0F95 Touchpad:dmi:*svnLENOVO*pvrThinkPadX1CarbonGen14*
+ EVDEV_ABS_00=:::18
+ EVDEV_ABS_01=:::18
+ EVDEV_ABS_35=:::18
+ EVDEV_ABS_36=:::18
