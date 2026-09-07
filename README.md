@@ -41,6 +41,17 @@ component skips itself if its packages are absent.
 | No fingerprint for `sudo` or polkit | not wired by default | `fingerprint/fingerprint-pam`, `fingerprint/pam.d-polkit-1` |
 | External display never appears after a suspend or an unplug | a compositor bug leaves the CRTC enabled, which pins the Type-C port | `display/` — no fix, a recovery |
 
+Every directory has a `README.md` with the symptom, the mechanism, what was
+ruled out, the commands that verify it, and how to tell when the upstream bug is
+fixed and this can be deleted:
+
+- [`touchpad/`](touchpad/README.md) — how to measure your own numbers
+- [`fingerprint/`](fingerprint/README.md) — four hyprlock bugs and how to tell them apart
+- [`typec-ucsi/`](typec-ucsi/README.md) — diagnosing the boot race, and the patch
+- [`camera/`](camera/README.md) — the four layers, and how to verify each
+- [`lid/`](lid/README.md) — why a closed lid must skip the fingerprint step
+- [`display/`](display/README.md) — the recovery, and what does not work
+
 ## Not specific to this model
 
 `fingerprint/` and `lid/` work on any ThinkPad with a fingerprint reader and a
@@ -53,8 +64,9 @@ model's panel, PD controller and camera.
 holds a fuzz value; the quirks file holds a pressure range. Each was measured on
 this panel with `evtest` and then tuned by feel. A different panel reports
 different deltas at a different resolution, thus the same numbers give a
-different result. **Take the method, measure your own numbers.** Each file
-records how its values were found.
+different result. **Take the method, measure your own numbers.**
+[`touchpad/README.md`](touchpad/README.md) is that method, and each file records
+how its own values were found.
 
 ## Upstream bugs
 
@@ -63,6 +75,8 @@ files, with what breaks without the workaround and how to tell the bug is fixed:
 
 - `hyprwm/hyprlock#531`, `#577` — fingerprint not re-armed after a suspend
 - `hyprwm/hyprlock#258` — fingerprint unlock counts as a failed password
+- `hyprwm/hyprlock#768` — the reader stays claimed until reboot
+- `hyprwm/hyprlock#538`, `#543` — verification starts before the lock surface exists
 - `hyprwm/aquamarine#386` — the CRTC of a removed connector is never disabled
 - kernel `typec_ucsi` — no retry when PPM init fails. My patch, acked, not yet merged:
   https://lore.kernel.org/linux-usb/20260824173536.2395830-1-jacob@riff.dk/
