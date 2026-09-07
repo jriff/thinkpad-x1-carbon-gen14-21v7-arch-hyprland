@@ -3,5 +3,7 @@ linux-headers       # imx471-dkms-git declares only dkms; DKMS cannot compile wi
 dkms
 libcamera           # layer 2: the camera stack the relay reads from
 libcamera-tools     # cam(1), for the verification steps in camera/README
+v4l-utils           # v4l2-ctl(1), the end-to-end check in camera/README. Usually arrives
+                    # as a gst-plugins-good dependency; named here so it cannot be missing
 pipewire-libcamera
 gst-plugin-libcamera

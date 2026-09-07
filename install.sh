@@ -35,7 +35,7 @@ touchpad     this Goodix 27C6:0F95 panel only
 fingerprint  any ThinkPad with a fingerprint reader, not only this model
   25-fprintd-stabilize    -> /usr/lib/systemd/system-sleep/25-fprintd-stabilize
   faillock.conf           -> /etc/security/faillock.conf
-  fingerprint-pam  -> /usr/local/bin/fingerprint-pam
+  fingerprint-pam         -> /usr/local/bin/fingerprint-pam  (+ run: edits /etc/pam.d/sudo)
   pam.d-polkit-1          -> /etc/pam.d/polkit-1
 
 lid          any ThinkPad
@@ -86,6 +86,9 @@ fingerprint() {
   run sudo install -Dm644 fingerprint/faillock.conf          /etc/security/faillock.conf
   run sudo install -Dm755 fingerprint/fingerprint-pam /usr/local/bin/fingerprint-pam
   run sudo install -Dm644 fingerprint/pam.d-polkit-1         /etc/pam.d/polkit-1
+  # Installing the script is not the same as running it. /etc/pam.d/sudo is
+  # package-owned with no drop-in, thus it is edited in place. Idempotent.
+  run sudo /usr/local/bin/fingerprint-pam
 }
 
 lid() { run sudo install -Dm755 lid/hw-laptop-closed /usr/local/bin/hw-laptop-closed; }

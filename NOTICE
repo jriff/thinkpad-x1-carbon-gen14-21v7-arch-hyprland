@@ -46,6 +46,12 @@ His values are for an M1 MacBook trackpad and were far too slow on this panel.
 The numbers here were measured with evtest and tuned on this hardware. The
 method is his; the values are not.
 
-### fingerprint/, display/, lid/
+### lid/hw-laptop-closed and fingerprint/fingerprint-pam
+Derived from Omarchy, MIT — its `omarchy-hw-laptop-closed` and its sudo PAM
+wiring. `quiet_log` on the gate is the only change:
+
+    https://github.com/basecamp/omarchy
+
+### fingerprint/ (the rest), display/
 Mine, from debugging this machine. The upstream bug each one works around is
 named in the file and in README.md.
