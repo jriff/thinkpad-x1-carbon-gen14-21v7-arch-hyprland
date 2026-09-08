@@ -74,7 +74,7 @@ Verify that the entry matched:
 
 ```sh
 udevadm info /dev/input/event9 | grep EVDEV_ABS
-# E: EVDEV_ABS_00=:::18
+# E: EVDEV_ABS_00=:::9
 ```
 
 No output means the match line is wrong — usually the DMI string. Compare it

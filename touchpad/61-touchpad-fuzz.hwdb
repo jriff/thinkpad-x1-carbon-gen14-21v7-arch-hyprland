@@ -7,7 +7,18 @@
 #
 # Measured with evtest, 16 press-and-lift cycles: the lift moves the position
 # 1 to 12 units. The axes are 3599 units over 128 mm and 1799 over 81 mm, thus
-# 28 and 22 units per mm. A fuzz of 18 is a dead zone of about 0.65 mm. 12 was not enough.
+# 28 and 22 units per mm.
+#
+# Tuning history, by feel, on this panel:
+#   12  drift still visible
+#   18  drift gone; slow precise movement feels sticky
+#    9  current. About 0.32 mm on X, 0.41 mm on Y. Some lift drift is back,
+#       and that is the accepted trade: 18 was worse to use.
+#
+# CAUTION: Do not "fix" the remaining drift by raising this again. It was tried
+# at 18 and rejected by feel. If the drift needs more work, take it from the
+# pressure range in local-overrides.quirks, which ends the contact earlier
+# without adding a dead zone to ordinary movement.
 #
 # Format is EVDEV_ABS_<hex code>=<min>:<max>:<resolution>:<fuzz>. The empty
 # fields keep the kernel values. 00 and 01 are ABS_X and ABS_Y; 35 and 36 are
@@ -18,7 +29,7 @@
 # needs a new session. It reads LIBINPUT_FUZZ_* per device, thus this applies
 # with `udevadm trigger`.
 evdev:name:GXTP5420:00 27C6:0F95 Touchpad:dmi:*svnLENOVO*pvrThinkPadX1CarbonGen14*
- EVDEV_ABS_00=:::18
- EVDEV_ABS_01=:::18
- EVDEV_ABS_35=:::18
- EVDEV_ABS_36=:::18
+ EVDEV_ABS_00=:::9
+ EVDEV_ABS_01=:::9
+ EVDEV_ABS_35=:::9
+ EVDEV_ABS_36=:::9
