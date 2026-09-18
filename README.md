@@ -40,6 +40,7 @@ component skips itself if its packages are absent.
 | Password refused after two fingerprint unlocks | hyprlock races PAM against fprintd; the loser is recorded as a failure | `fingerprint/faillock.conf` |
 | No fingerprint for `sudo` or polkit | not wired by default | `fingerprint/fingerprint-pam`, `fingerprint/pam.d-polkit-1` |
 | External display never appears after a suspend or an unplug | a compositor bug leaves the CRTC enabled, which pins the Type-C port | `display/` — no fix, a recovery |
+| Mic silent for about 30 s mid-recording; a speaker channel drops | the SoundWire links fault on clock-stop exit and the bus re-enumerates | `audio/sdw-clock-stop.conf` |
 
 Every directory has a `README.md` with the symptom, the mechanism, what was
 ruled out, the commands that verify it, and how to tell when the upstream bug is
@@ -51,12 +52,13 @@ fixed and this can be deleted:
 - [`camera/`](camera/README.md) — the four layers, and how to verify each
 - [`lid/`](lid/README.md) — why a closed lid must skip the fingerprint step
 - [`display/`](display/README.md) — the recovery, and what does not work
+- [`audio/`](audio/README.md) — why the bus clock must stay on, and the cost
 
 ## Not specific to this model
 
 `fingerprint/` and `lid/` work on any ThinkPad with a fingerprint reader and a
-lid. Only `touchpad/`, `typec-ucsi/`, `camera/` and `display/` are tied to this
-model's panel, PD controller and camera.
+lid. Only `touchpad/`, `typec-ucsi/`, `camera/`, `display/` and `audio/` are
+tied to this model's panel, PD controller, camera and codecs.
 
 ## The touchpad numbers do not transfer
 
@@ -80,6 +82,7 @@ files, with what breaks without the workaround and how to tell the bug is fixed:
 - `hyprwm/aquamarine#386` — the CRTC of a removed connector is never disabled
 - kernel `typec_ucsi` — no retry when PPM init fails. My patch, acked, not yet merged:
   https://lore.kernel.org/linux-usb/20260824173536.2395830-1-jacob@riff.dk/
+- `thesofproject/linux#5914` — SoundWire bus clash and parity errors on the CS42L45
 
 ## Licence
 

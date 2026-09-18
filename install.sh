@@ -20,7 +20,7 @@ cd "$(dirname "$0")"
 DRY=0
 # ORDER MATTERS: lid before fingerprint. pam.d-polkit-1 gates on
 # /usr/local/bin/hw-laptop-closed, thus that binary must exist first.
-COMPONENTS=(touchpad lid fingerprint camera)
+COMPONENTS=(touchpad lid fingerprint camera audio)
 
 say() { printf '+ %s\n' "$*"; }
 run() { say "$*"; [ "$DRY" = 1 ] && return 0; "$@" || { echo "install.sh: FAILED: $*" >&2; exit 1; }; }
@@ -44,6 +44,9 @@ lid          any ThinkPad
 camera       this model. Runs camera/install.sh, which writes /etc overrides for
              libcamera, v4l2-relayd and the loopback, then restarts the relay.
              Skipped when the packages are absent.
+
+audio        this model: CS42L45 mic codec and CS35L63 amps on SoundWire
+  sdw-clock-stop.conf     -> /etc/modprobe.d/sdw-clock-stop.conf   (live at the next boot)
 
 typec-ucsi   this model. Built, not copied: cd typec-ucsi && makepkg -si
 packages     packages.pacman and packages.aur list what the above needs
@@ -101,6 +104,12 @@ camera() {
     return 0
   fi
   run ./camera/install.sh
+}
+
+# A module parameter. modprobe reads it when the driver loads, at boot.
+audio() {
+  run sudo install -Dm644 audio/sdw-clock-stop.conf /etc/modprobe.d/sdw-clock-stop.conf
+  say "note: reboot for sdw-clock-stop.conf to take effect"
 }
 
 want=()
