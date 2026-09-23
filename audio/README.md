@@ -60,9 +60,14 @@ cat /sys/module/snd_sof_intel_hda_generic/parameters/sdw_clock_stop_quirks
 # 1
 cat /sys/bus/auxiliary/devices/soundwire_intel.link.3/power/runtime_status
 # active, at any time, with nothing recording
-journalctl -k -b | grep -cE 'soundwire_intel.*(clash|Parity)'
-# 0, after a day of use
+journalctl -k -b | grep -E 'soundwire_intel.*(clash|Parity)'
+# nothing within 5 s of a recording
 ```
+
+CAUTION: Do not read that last one as a count. A resume from suspend logs
+about two clash lines whatever the quirk does, because a system suspend stops
+the bus on a different path. Measured: 57 recordings over one boot with two
+lines, both at `PM: suspend exit`, 6.6 minutes from the nearest recording.
 
 The same effect without a reboot, for a test only, is
 `echo on > /sys/bus/auxiliary/devices/soundwire_intel.link.{2,3}/power/control`
@@ -72,8 +77,9 @@ where before nearly each recording faulted.
 ## Fixed when
 
 Set the file aside, reboot, and run the third command above after a day of
-dictation. `0` means the kernel handles clock-stop exit on this codec, and the
-file can go. Any other number means put it back.
+dictation. No line within 5 s of a recording means the kernel handles
+clock-stop exit on this codec, and the file can go. A line beside a recording
+means put it back.
 
 Upstream: [thesofproject/linux#5914](https://github.com/thesofproject/linux/issues/5914)
 is the same fault on a Dell XPS 14 with the same codec. That report has no
