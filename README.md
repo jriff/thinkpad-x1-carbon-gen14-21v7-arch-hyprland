@@ -39,7 +39,7 @@ component skips itself if its packages are absent.
 | Fingerprint reader dead after resume | fprintd holds a stale device handle | `fingerprint/25-fprintd-stabilize` |
 | Password refused after two fingerprint unlocks | hyprlock races PAM against fprintd; the loser is recorded as a failure | `fingerprint/faillock.conf` |
 | No fingerprint for `sudo` or polkit | not wired by default | `fingerprint/fingerprint-pam`, `fingerprint/pam.d-polkit-1` |
-| External display never appears after a suspend or an unplug | a compositor bug leaves the CRTC enabled, which pins the Type-C port | `display/` — no fix, a recovery |
+| External display never appears after a suspend or an unplug | a compositor bug leaves the CRTC enabled, which pins the Type-C port | `display/` — fixed in aquamarine 0.16.0; a recovery for older versions |
 | Mic silent for about 30 s mid-recording; a speaker channel drops | the SoundWire links fault on clock-stop exit and the bus re-enumerates | `audio/sdw-clock-stop.conf` |
 
 Every directory has a `README.md` with the symptom, the mechanism, what was
@@ -51,7 +51,7 @@ fixed and this can be deleted:
 - [`typec-ucsi/`](typec-ucsi/README.md) — diagnosing the boot race, and the patch
 - [`camera/`](camera/README.md) — the four layers, and how to verify each
 - [`lid/`](lid/README.md) — why a closed lid must skip the fingerprint step
-- [`display/`](display/README.md) — the recovery, and what does not work
+- [`display/`](display/README.md) — the version that fixes it, and the recovery for older versions
 - [`audio/`](audio/README.md) — why the bus clock must stay on, and the cost
 
 ## Not specific to this model
@@ -79,7 +79,7 @@ files, with what breaks without the workaround and how to tell the bug is fixed:
 - `hyprwm/hyprlock#258` — fingerprint unlock counts as a failed password
 - `hyprwm/hyprlock#768` — the reader stays claimed until reboot
 - `hyprwm/hyprlock#538`, `#543` — verification starts before the lock surface exists
-- `hyprwm/aquamarine#386` — the CRTC of a removed connector is never disabled
+- `hyprwm/aquamarine#386` — the CRTC of a removed connector is never disabled. Fixed in 0.16.0
 - kernel `typec_ucsi` — no retry when PPM init fails. My patch, acked, not yet merged:
   https://lore.kernel.org/linux-usb/20260824173536.2395830-1-jacob@riff.dk/
 - `thesofproject/linux#5914` — SoundWire bus clash and parity errors on the CS42L45
