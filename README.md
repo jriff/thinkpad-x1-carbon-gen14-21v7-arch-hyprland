@@ -41,6 +41,7 @@ component skips itself if its packages are absent.
 | No fingerprint for `sudo` or polkit | not wired by default | `fingerprint/fingerprint-pam`, `fingerprint/pam.d-polkit-1` |
 | External display never appears after a suspend or an unplug | a compositor bug leaves the CRTC enabled, which pins the Type-C port | `display/` — fixed in aquamarine 0.16.0; a recovery for older versions |
 | Mic silent for about 30 s mid-recording; a speaker channel drops | the SoundWire links fault on clock-stop exit and the bus re-enumerates | `audio/sdw-clock-stop.conf` |
+| Apps show "Core Ultra Processors (Series 3) HD Audio Speaker" | WirePlumber starts each name with the PCI database name of the chip | `audio/51-audio-names.conf` |
 
 Every directory has a `README.md` with the symptom, the mechanism, what was
 ruled out, the commands that verify it, and how to tell when the upstream bug is

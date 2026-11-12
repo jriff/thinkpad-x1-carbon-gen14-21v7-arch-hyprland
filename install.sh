@@ -47,6 +47,8 @@ camera       this model. Runs camera/install.sh, which writes /etc overrides for
 
 audio        this model: CS42L45 mic codec and CS35L63 amps on SoundWire
   sdw-clock-stop.conf     -> /etc/modprobe.d/sdw-clock-stop.conf   (live at the next boot)
+  51-audio-names.conf     -> /etc/wireplumber/wireplumber.conf.d/51-audio-names.conf
+                             (live when WirePlumber restarts)
 
 typec-ucsi   this model. Built, not copied: cd typec-ucsi && makepkg -si
 packages     packages.pacman and packages.aur list what the above needs
@@ -110,6 +112,9 @@ camera() {
 audio() {
   run sudo install -Dm644 audio/sdw-clock-stop.conf /etc/modprobe.d/sdw-clock-stop.conf
   say "note: reboot for sdw-clock-stop.conf to take effect"
+  # WirePlumber reads the rules when it starts. A restart here would cut the audio of a running call.
+  run sudo install -Dm644 audio/51-audio-names.conf /etc/wireplumber/wireplumber.conf.d/51-audio-names.conf
+  say "note: systemctl --user restart wireplumber, or log in again, for 51-audio-names.conf"
 }
 
 want=()
