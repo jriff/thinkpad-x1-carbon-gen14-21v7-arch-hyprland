@@ -42,9 +42,11 @@ if grep -q 'PPM init succeeded after\|ret == -ENODEV || ret == -EINVAL' ucsi.c; 
     exit 1
 fi
 
-# Older kernels name the workqueue system_long_wq. Adapt the patch to this kernel.
+# The patch uses system_dfl_long_wq. Older kernels have only system_long_wq.
+# NOTE: Test for the absence of the new name. Kernel 7.3 uses both names in
+# ucsi.c, thus a test for the old name rewrites a correct patch.
 cp rfc-retry.patch retry.patch
-if grep -q 'system_long_wq' ucsi.c; then
+if ! grep -q 'system_dfl_long_wq' ucsi.c; then
     echo "riffos-ucsi-retry: kernel uses system_long_wq; adapting patch"
     sed -i 's/system_dfl_long_wq/system_long_wq/g' retry.patch
 fi

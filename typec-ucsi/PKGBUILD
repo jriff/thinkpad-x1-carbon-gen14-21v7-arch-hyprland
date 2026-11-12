@@ -13,7 +13,7 @@ pkgver=1.0
 # CAUTION: Bump pkgrel when any file in source=() changes. `pacman -U --needed`
 # skips a matching version, thus /usr/src keeps the old source and setup.sh
 # reports success. sha256sums are SKIP, thus nothing else catches it.
-pkgrel=2
+pkgrel=3
 pkgdesc="typec_ucsi with the PPM init-retry patch (Lenovo X1 Carbon Gen 14 boot race)"
 arch=('any')
 url="https://lore.kernel.org/linux-usb/"
