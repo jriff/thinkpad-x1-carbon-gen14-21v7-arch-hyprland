@@ -3,8 +3,8 @@
 set -euo pipefail
 [ "$EUID" -ne 0 ] || { echo "Run as regular user; sudo is used where needed."; exit 1; }
 
-echo "== Remove DKMS package (modules auto-removed from all kernels + tuning yaml) =="
-sudo pacman -Rns --noconfirm imx471-dkms-git 2>/dev/null || echo "(imx471-dkms-git not installed)"
+echo "== Remove the tuning file =="
+sudo rm -f /etc/libcamera/ipa/simple/imx471.yaml
 
 echo "== Remove libcamera/PipeWire packages (kept if something else needs them) =="
 sudo pacman -Rns --noconfirm gst-plugin-libcamera pipewire-libcamera libcamera-tools libcamera 2>/dev/null \
@@ -30,4 +30,4 @@ sudo systemctl daemon-reload
 
 echo
 echo ">>> Reverted. REBOOT to unload the modules and return to the stock stack."
-echo ">>> Verify: 'dkms status' shows no imx471; 'modinfo imx471' fails."
+echo ">>> The imx471 driver is part of the kernel and stays. Nothing opens it without the relay."

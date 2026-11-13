@@ -1,7 +1,7 @@
 # Configure the X1 Carbon Gen 14 camera. Layers, per ocewers' README:
 # 1 kernel modules, 2 libcamera/PipeWire, 3 v4l2-relayd, 4 tuning.
-# Layers 1 and 4 come from AUR imx471-dkms-git; DKMS rebuilds on kernel updates.
-# Layers 2 and 3 are /etc overrides. No package-owned file is modified.
+# Layer 1 is the kernel's own imx471 driver (Linux 7.3 and later).
+# Layers 2, 3 and 4 are /etc overrides. No package-owned file is modified.
 #
 # THIS SCRIPT INSTALLS NO PACKAGES. They are listed in ../packages.pacman and
 # ../packages.aur, thus there is one list and not two. ../install.sh runs this
@@ -17,6 +17,11 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 [ -d /etc/v4l2-relayd.d ] || {
   echo "v4l2-relayd is not installed. Install ../packages.aur and ../packages.pacman first." >&2
   exit 1
+}
+
+# The sensor driver is in the kernel from 7.3. linux-lts does not have it.
+modinfo -n imx471 >/dev/null 2>&1 || {
+  echo "WARNING: this kernel has no imx471 driver. The camera needs Linux 7.3 or later." >&2
 }
 
 echo "== Layer 2: unblock ISYS nodes + enable WirePlumber libcamera monitor =="
@@ -48,17 +53,19 @@ if ! grep -qsx "Hardware ISP Camera" /sys/devices/virtual/video4linux/*/name; th
 fi
 sudo systemctl restart v4l2-relayd.service
 
-echo "== Layer 4: ocewers tuning (this SKU) over the package's X9-derived yaml =="
-# The packaged yaml renders pink on this unit; ocewers' calibration is for this
-# SKU. NoUpgrade keeps package upgrades from restoring it (pacman writes a .pacnew).
-sudo cp "$REPO/tuning/imx471.yaml" /usr/share/libcamera/ipa/simple/imx471.yaml
-grep -q '^NoUpgrade = usr/share/libcamera/ipa/simple/imx471.yaml' /etc/pacman.conf \
-  || sudo sed -i '/^\[options\]/a NoUpgrade = usr/share/libcamera/ipa/simple/imx471.yaml' /etc/pacman.conf
+echo "== Layer 4: tuning file for this unit =="
+# libcamera reads /etc/libcamera/ipa before /usr/share/libcamera/ipa, thus no
+# package can replace this file. NOTE: The NoUpgrade line is from the DKMS-module
+# install. It protected a package-owned copy, thus a machine with the old setup
+# drops it here.
+sudo install -Dm644 "$REPO/tuning/imx471.yaml" /etc/libcamera/ipa/simple/imx471.yaml
+sudo sed -i '\|^NoUpgrade = usr/share/libcamera/ipa/simple/imx471.yaml$|d' /etc/pacman.conf
 
 echo
 echo ">>> All layers installed. The relay is up now; REBOOT to prove the boot path, then verify bottom-up:"
 echo ">>>   systemctl is-active v4l2-relayd@ipu7        # active"
 echo ">>>   cat /sys/devices/virtual/video4linux/video50/name   # Hardware ISP Camera"
+echo ">>>   modinfo -n imx471                            # a path under kernel/, not updates/"
 echo ">>>   journalctl -k -b | grep -E 'Found supported sensor|imx471'"
 echo ">>>   cam --list"
 echo ">>>   v4l2-ctl -d /dev/video50 --stream-mmap --stream-count=90"

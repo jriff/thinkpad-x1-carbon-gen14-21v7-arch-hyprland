@@ -1,11 +1,11 @@
 # Camera
 
-No working `/dev/video*` out of the box. The IPU7 ISP has been in the mainline
-kernel since 7.1, but the `imx471` sensor behind it has not, and the userspace
-above it needs configuring before anything can open the camera.
+No working `/dev/video*` out of the box. The kernel drives the sensor from 7.3,
+but the userspace above it needs configuration before an app can open the
+camera.
 
-**This is an interim layer.** When `modinfo imx471` succeeds on a stock kernel,
-delete all of it.
+**Layer 1 needs Linux 7.3 or later.** `linux-lts` has no `imx471` driver, thus
+no camera on the recovery kernel.
 
 ## Layers
 
@@ -14,13 +14,14 @@ which is where the configuration below comes from:
 
 | | |
 |---|---|
-| 1 · kernel | the `imx471` sensor module — AUR `imx471-dkms-git`, rebuilt per kernel |
+| 1 · kernel | the stock kernel's `imx471`, `ipu-bridge` and `int3472` drivers |
 | 2 · libcamera / PipeWire | unblock the ISYS nodes, enable WirePlumber's libcamera monitor |
 | 3 · v4l2-relayd | feed a `v4l2loopback` node from libcamera, so ordinary apps see a camera |
-| 4 · tuning | the sensor tuning file, also from `imx471-dkms-git` |
+| 4 · tuning | `tuning/imx471.yaml`, the colour calibration for this unit |
 
-Layers 1 and 4 are packages. Layers 2 and 3 are the files in `configs/`, all
-installed as `/etc` overrides — **no package-owned file is modified**.
+Layers 2, 3 and 4 are `/etc` overrides. No package-owned file is modified.
+libcamera reads `/etc/libcamera/ipa` before `/usr/share/libcamera/ipa`, thus the
+tuning file in `/etc` wins.
 
 ```sh
 ./install.sh      # needs the packages from ../packages.{pacman,aur} first
@@ -36,6 +37,7 @@ The sensor module loads at boot, thus **test after a reboot**, not straight
 after installing.
 
 ```sh
+modinfo -n imx471                                     # a path under kernel/, not updates/
 cam --list                                            # the sensor, via libcamera
 systemctl is-active v4l2-relayd@ipu7                  # active
 cat /sys/devices/virtual/video4linux/video50/name     # Hardware ISP Camera
