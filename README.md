@@ -32,7 +32,7 @@ component skips itself if its packages are absent.
 | Symptom | Cause | Fix |
 |---|---|---|
 | Type-C dead for the whole session — no charging, no display — on about half of boots | `typec_ucsi` PPM init fails and the driver does not retry | `typec-ucsi/` |
-| Camera invisible; no `/dev/video*` that works | IPU7 + imx471 need a sensor module, libcamera config and tuning. Interim, until kernel 7.3 | `camera/` |
+| Camera invisible; no `/dev/video*` that works | The kernel drives the sensor from 7.3, but libcamera, the relay and the tuning need configuration | `camera/` |
 | Pointer drifts a few tenths of a mm when a finger lifts | the panel reports fuzz 0, thus libinput has no hysteresis | `touchpad/61-touchpad-fuzz.hwdb` |
 | …still drifts a little | the panel reports a position change at pressure 0, before it reports the touch as up | `touchpad/local-overrides.quirks` |
 | Pointer accelerates unlike any other OS | libinput's default profile | `touchpad/input-host.lua` |
