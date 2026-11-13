@@ -10,11 +10,7 @@ echo "== Remove libcamera/PipeWire packages (kept if something else needs them) 
 sudo pacman -Rns --noconfirm gst-plugin-libcamera pipewire-libcamera libcamera-tools libcamera 2>/dev/null \
   || echo "(libcamera packages kept — dependency of another package)"
 
-echo "== Remove pacman NoUpgrade entry for the tuning yaml =="
-sudo sed -i '\|^NoUpgrade = usr/share/libcamera/ipa/simple/imx471.yaml$|d' /etc/pacman.conf
-
-echo "== Restore udev / WirePlumber / relayd stock behavior =="
-sudo rm -f /etc/udev/rules.d/71-ipu7-hide-isys.rules
+echo "== Restore WirePlumber / relayd stock behavior =="
 sudo rm -f /etc/wireplumber/wireplumber.conf.d/wireplumber-enable-libcamera.conf
 if [ -f /etc/v4l2-relayd.d/ipu7.conf.stock ]; then
   sudo mv /etc/v4l2-relayd.d/ipu7.conf.stock /etc/v4l2-relayd.d/ipu7.conf

@@ -25,9 +25,6 @@ modinfo -n imx471 >/dev/null 2>&1 || {
 }
 
 echo "== Layer 2: enable WirePlumber libcamera monitor =="
-# NOTE: An empty 71-ipu7-hide-isys.rules masked a rule from Omarchy's
-# intel-ipu7-camera package. RiffOS does not install that package, thus the mask is deleted.
-sudo rm -f /etc/udev/rules.d/71-ipu7-hide-isys.rules
 sudo mkdir -p /etc/wireplumber/wireplumber.conf.d
 sudo cp "$REPO/configs/wireplumber-enable-libcamera.conf" /etc/wireplumber/wireplumber.conf.d/
 
@@ -57,11 +54,8 @@ sudo systemctl restart v4l2-relayd.service
 
 echo "== Layer 4: tuning file for this unit =="
 # libcamera reads /etc/libcamera/ipa before /usr/share/libcamera/ipa, thus no
-# package can replace this file. NOTE: The NoUpgrade line is from the DKMS-module
-# install. It protected a package-owned copy, thus a machine with the old setup
-# drops it here.
+# package can replace this file.
 sudo install -Dm644 "$REPO/tuning/imx471.yaml" /etc/libcamera/ipa/simple/imx471.yaml
-sudo sed -i '\|^NoUpgrade = usr/share/libcamera/ipa/simple/imx471.yaml$|d' /etc/pacman.conf
 
 echo
 echo ">>> All layers installed. The relay is up now; REBOOT to prove the boot path, then verify bottom-up:"
