@@ -24,8 +24,10 @@ modinfo -n imx471 >/dev/null 2>&1 || {
   echo "WARNING: this kernel has no imx471 driver. The camera needs Linux 7.3 or later." >&2
 }
 
-echo "== Layer 2: unblock ISYS nodes + enable WirePlumber libcamera monitor =="
-sudo touch /etc/udev/rules.d/71-ipu7-hide-isys.rules
+echo "== Layer 2: enable WirePlumber libcamera monitor =="
+# NOTE: An empty 71-ipu7-hide-isys.rules masked a rule from Omarchy's
+# intel-ipu7-camera package. RiffOS does not install that package, thus the mask is deleted.
+sudo rm -f /etc/udev/rules.d/71-ipu7-hide-isys.rules
 sudo mkdir -p /etc/wireplumber/wireplumber.conf.d
 sudo cp "$REPO/configs/wireplumber-enable-libcamera.conf" /etc/wireplumber/wireplumber.conf.d/
 

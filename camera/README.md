@@ -15,7 +15,7 @@ which is where the configuration below comes from:
 | | |
 |---|---|
 | 1 · kernel | the stock kernel's `imx471`, `ipu-bridge` and `int3472` drivers |
-| 2 · libcamera / PipeWire | unblock the ISYS nodes, enable WirePlumber's libcamera monitor |
+| 2 · libcamera / PipeWire | enable WirePlumber's libcamera monitor |
 | 3 · v4l2-relayd | feed a `v4l2loopback` node from libcamera, so ordinary apps see a camera |
 | 4 · tuning | `tuning/imx471.yaml`, the colour calibration for this unit |
 
